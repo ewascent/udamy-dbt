@@ -1,0 +1,14 @@
+FROM davidgasquez/dbt:latest as my-dbt
+
+RUN mkdir /usr/local/dbt/
+COPY ./docker/init_dbt.sh /usr/local/dbt/
+RUN chmod 0776 /usr/local/dbt/init_dbt.sh
+
+# initialize project for demo
+RUN dbt init learn_dbt
+
+COPY ./dbt/profiles.yml /root/.dbt
+
+#project folder for this dbt project
+WORKDIR /usr/local/dbt/learn_dbt
+ENTRYPOINT [ "/usr/local/dbt/init_dbt.sh"]

@@ -1,0 +1,29 @@
+# Base this either on puckel/docker-airflow or airflow's own image
+FROM git.cambiahealth.com:4567/remedygrade/docker-images/python37-airflow:latest
+USER root
+
+WORKDIR /usr/local/airflow
+
+# These packages won't install with the proxy enabled, and
+# the apt stuff won't work without it. We ❤ our proxy.
+RUN unset HTTPS_PROXY
+RUN unset HTTP_PROXY
+RUN unset https_proxy
+RUN unset http_proxy
+
+RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --index-url=https://pypi.org/simple/ --upgrade pip \
+  && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --index-url=https://pypi.org/simple/ certifi flake8
+
+# These packages won't install with the proxy enabled, and
+# the apt stuff won't work without it. We ❤ our proxy.
+ENV HTTPS_PROXY=https://proxy.regence.com:8080
+ENV HTTP_PROXY=http://proxy.regence.com:8080
+ENV https_proxy=https://proxy.regence.com:8080
+ENV http_proxy=http://proxy.regence.com:8080
+
+COPY ./docker/init_airflow.sh /usr/local/airflow/
+COPY ./docker/airflow.cfg /usr/local/airflow/
+
+RUN chmod 0776 /usr/local/airflow/init_airflow.sh
+
+WORKDIR /usr/local/airflow

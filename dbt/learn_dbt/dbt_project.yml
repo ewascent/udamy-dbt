@@ -1,0 +1,41 @@
+name: 'learn_dbt'
+version: '1.0.0'
+config-version: 2
+
+# from profiles.yml
+profile: 'snoflake-dev'
+
+# These configurations specify where dbt should look for different types of files.
+# The `source-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+source-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_modules"
+
+vars:
+  my_first_variable: True
+  my_second_variable: 2021
+  my_third_variable: 1
+
+models:
+  learn_dbt:
+    example:
+      materialized: table
+    pre-hook: "insert into dbt.audit (model, state, time) values ('{{this.name}}', 'starting model deployment', current_timestamp)"
+    tags: "nightly"
+
+on-run-start:
+    - "create table if not exists audit (model text, state text, time timestamp_ltz)"
+
+on-run-end:
+  - 'grant usage on schema analytics.dbt to role analyst'
+  - 'grant select on all tables in schema analytics.dbt to role analyst'
+  - 'grant select on all views in schema analytics.dbt to role analyst'

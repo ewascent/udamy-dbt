@@ -1,0 +1,15 @@
+snoflake-dev:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: EAA30994
+      user: PC_DBT_USER
+      password: password_PhartingCrow24&
+      role: PC_DBT_ROLE
+      database: ANALYTICS
+      warehouse: PC_DBT_WH
+      schema: dbt
+      threads: 1
+      client_session_keep_alive: False
+      query_tag: dbt_analytics

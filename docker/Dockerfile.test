@@ -1,0 +1,30 @@
+FROM puckel/docker-airflow
+USER root
+
+WORKDIR /usr/local/airflow
+
+# These packages won't install with the proxy enabled, and
+# the apt stuff won't work without it. We ❤ our proxy.
+RUN unset http_proxy \
+  && unset HTTP_PROXY \
+  && unset https_proxy \
+  && unset HTTPS_PROXY \
+  && pip install flake8 simple_salesforce pymsteams slackclient pytest boto3 moto
+
+ENV HTTPS_PROXY=https://proxy.regence.com:8080
+ENV HTTP_PROXY=http://proxy.regence.com:8080
+ENV https_proxy=https://proxy.regence.com:8080
+ENV http_proxy=http://proxy.regence.com:8080
+
+ENV AIRFLOW__CORE__PLUGINS_FOLDER=/usr/local/airflow/src
+ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+# RUN apt-get update -yqq && apt-get install -yqq vim procps
+RUN apt-get update -yqq
+
+WORKDIR /usr/local/airflow
+
+COPY ./dags /usr/local/airflow/dags
+COPY ./src /usr/local/airflow/src
+COPY ./tests /usr/local/airflow/tests
+COPY ./.flake8 /usr/local/airflow/.flake8

@@ -1,0 +1,10 @@
+{{ config(materialized='table', alias='running_totals') }}
+
+WITH running_totals AS (
+    SELECT SUM(O_TOTALPRICE) OVER (partition by NULL ORDER BY O_ORDERDATE ASC ROWS UNBOUNDED PRECEDING) running_total, O_ORDERDATE
+    FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.ORDERS
+)
+SELECT MAX(running_total) RUNNING_TOTAL_PRICE, O_ORDERDATE
+FROM running_totals
+GROUP BY O_ORDERDATE
+ORDER BY O_ORDERDATE
